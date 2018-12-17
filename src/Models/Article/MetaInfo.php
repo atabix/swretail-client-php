@@ -1,6 +1,6 @@
 <?php
 
-namespace SWRetail\SWRetail\Models\Article;
+namespace SWRetail\Models\Article;
 
 use SWRetail\Models\Model;
 
@@ -16,26 +16,25 @@ class MetaInfo extends Model // ModelInfo
 
         return $this;
     }
-    
-    public function setTitle($value) 
+
+    public function setTitle($value)
     {
         $this->title = $value;
-        
+
         return $this;
     }
 
-    public function setDescription($value) 
+    public function setDescription($value)
     {
         $this->description = $value;
-        
+
         return $this;
     }
 
-    public function setKeywords($value) 
+    public function setKeywords($value)
     {
         $this->keywords = $value;
-        
+
         return $this;
     }
-
 }

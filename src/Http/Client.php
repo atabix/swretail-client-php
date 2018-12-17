@@ -12,8 +12,8 @@ use GuzzleHttp\Middleware;
 use GuzzleHttp\RequestOptions as Options;
 use Psr\Http\Message\ResponseInterface;
 use SWRetail\Exceptions\ApiException;
-
 use function GuzzleHttp\choose_handler;
+use function SWRetail\swconfig;
 
 class Client extends HttpClient
 {
@@ -89,6 +89,21 @@ class Client extends HttpClient
     }
 
     /**
+     * Set a request option (unconditionally).
+     *
+     * @param string $key   Key of the option.(RequestOptions:: constant)
+     * @param mixed  $value Value for the option.
+     *
+     * @return self
+     */
+    public function setOption(string $key, $value) : self
+    {
+        $this->requestOptions[$key] = $value;
+
+        return $this;
+    }
+
+    /**
      * Do a request with the given parameters.
      *
      * @param string $method HTTP method
@@ -103,11 +118,9 @@ class Client extends HttpClient
     public function getApiResponse(string $method, string $path, $query = null, $data = null) : Response
     {
         if ($query) {
-            // $this->query($query);
             $this->setOption(Options::QUERY, $query);
         }
         if ($data) {
-            // $this->json($data);
             $this->setOption(Options::JSON, $data);
         }
 
@@ -134,11 +147,11 @@ class Client extends HttpClient
         try {
             $response = $client->getApiResponse($method, $path, $query, $data);
         } catch (RequestException $e) {
-            $response = $client->handleRequestException($e); // TODO
+            $response = $client->handleRequestException($e);
         }
 
         // throw when data has "errors".
-        $client->handleResponseErrors($response); // TODO
+        $client->handleResponseErrors($response);
 
         return $response;
     }
@@ -179,8 +192,7 @@ class Client extends HttpClient
      */
     public function handleResponseErrors(Response $response)
     {
-        // TODO check for SWRetail API.
-        if (! empty($response->json->errors)) {
+        if (! empty($response->json->errorcode)) {
             throw ApiException::fromResponse($response);
         }
     }
