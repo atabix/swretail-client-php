@@ -3,10 +3,14 @@
 namespace SWRetail\Models;
 
 use SWRetail\Http\Client;
+use SWRetail\Models\Article\ActionArticles;
+use SWRetail\Models\Article\ArticleChanged;
 use SWRetail\Models\Article\Category;
 use SWRetail\Models\Article\MetaInfo;
 use SWRetail\Models\Article\PriceInfo;
 use SWRetail\Models\Article\Size;
+use SWRetail\Models\Article\Stock;
+use SWRetail\Models\Article\StockChanged;
 use function SWRetail\snake_case;
 
 class Article extends Model
@@ -63,7 +67,7 @@ class Article extends Model
 
     /**
      * Get an existing Article from the API.
-     * 
+     *
      * @api
      *
      * @param int $id [description]
@@ -88,6 +92,7 @@ class Article extends Model
 
     /**
      * Create a new Artice in the API.
+     *
      * @api
      *
      * @return int The new article ID.
@@ -103,11 +108,14 @@ class Article extends Model
 
         return $articleId;
     }
-    
+
     /**
      * Update an existing Article in the API.
+     *
      * @api
-     * @param  int $id SWRetail article ID.
+     *
+     * @param int $id SWRetail article ID.
+     *
      * @return bool
      */
     public function update(int $id = null)
@@ -119,9 +127,9 @@ class Article extends Model
         $path = 'article/' . $id;
 
         $data = $this->toApiRequest();
-        
+
         $response = Client::requestApi('PUT', $path, null, $data);
-        
+
         return  $response->json->status == 'ok';
     }
 
@@ -385,5 +393,29 @@ class Article extends Model
         }
 
         throw new \BadMethodCallException("Call to undefined method '$name' in " . __FILE__ . ':' . __LINE__);
+    }
+
+    // Changed / Stock related.
+
+    public static function allChanged($minutes) : ArticleChanged
+    {
+        return new ArticleChanged($minutes);
+    }
+
+    public static function stockChanged($minutes) : StockChanged
+    {
+        return new StockChanged($minutes);
+    }
+
+    public static function withActionsAt($date) : ActionArticles
+    {
+        return (new ActionArticles())->atDate($date);
+    }
+
+    public function stockAt($position, $warehouse = null) : Stock
+    {
+        $warehouseId = $warehouse instanceof Warehouse ? $warehouse->getId() : $warehouse;
+
+        return new Stock($this->id, $position, $warehouseId);
     }
 }
