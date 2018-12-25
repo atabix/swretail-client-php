@@ -13,7 +13,6 @@ use GuzzleHttp\RequestOptions as Options;
 use Psr\Http\Message\ResponseInterface;
 use SWRetail\Exceptions\ApiException;
 use function GuzzleHttp\choose_handler;
-use function SWRetail\swconfig;
 
 class Client extends HttpClient
 {
@@ -39,12 +38,13 @@ class Client extends HttpClient
     public function __construct($parameters = [])
     {
         $parameters = \array_replace_recursive([
-            'base_uri' => swconfig('api_base_uri'),
+            'base_uri' => config('swretail.endpoint'),
             'auth'     => [
-                swconfig('api_auth_username'),
-                swconfig('api_auth_password'),
+                config('swretail.username'),
+                config('swretail.password'),
             ],
             'handler'  => $this->getHandlerStack(),
+            // 'debug'    => true,
         ], $parameters);
 
         parent::__construct($parameters);
@@ -85,7 +85,7 @@ class Client extends HttpClient
     {
         $method = \strtoupper($method);
 
-        return $this->request($method, $path, $this->requestOptions);
+        return $this->request($method, '/swcloud/SWWService'.$path, $this->requestOptions);
     }
 
     /**

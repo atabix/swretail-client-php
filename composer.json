@@ -20,5 +20,13 @@
         "psr-4": {
             "SWRetail\\": "src/"
         }
-    }
+    },
+    "extra": {
+        "laravel": {
+          "providers": [
+            "SWRetail\\SWRetailServiceProvider"
+          ]
+        }
+      }
+
 }
