@@ -5,6 +5,7 @@ namespace SWRetail\Models;
 use SWRetail\Http\Client;
 use SWRetail\Models\Article\ActionArticles;
 use SWRetail\Models\Article\ArticleChanged;
+use SWRetail\Models\Article\Barcode;
 use SWRetail\Models\Article\Category;
 use SWRetail\Models\Article\MetaInfo;
 use SWRetail\Models\Article\PriceInfo;
@@ -198,7 +199,7 @@ class Article extends Model
         $this->parseSizes($data->sizes, $data->barcodes);
         $this->parseImages($data->images);
         $this->parseActions($data->article_actions);
-        // $this->parseFields($data->fields); TODO parse custom fields
+        $this->parseFields($data->fields);
     }
 
     public function setValue($key, $value)
@@ -269,6 +270,13 @@ class Article extends Model
         }
     }
 
+    private function parseFields($fieldsData)
+    {
+        foreach ($fieldsData as $name => $value) {
+            $this->fields[$name] = $value;
+        }
+    }
+
     public function setCategory($main, $sub = null, $subsub = null)
     {
         if ($main instanceof Category) {
@@ -298,6 +306,14 @@ class Article extends Model
         return $this;
     }
 
+    public function addBarcode(Barcode $barcode)
+    {
+        $position = $barcode->getPosition() ?? \max(\array_keys($this->barcodes)) + 1;
+        $this->barcodes[$position] = $barcode;
+
+        return $this;
+    }
+
     public function addImage(Image $image)
     {
         $this->images[] = $image;
@@ -306,6 +322,11 @@ class Article extends Model
     public function addAction(Action $action)
     {
         $this->actions[] = $action;
+    }
+
+    public function setField($name, $value)
+    {
+        $this->fields[$name] = $value;
     }
 
     // --
@@ -342,7 +363,7 @@ class Article extends Model
         return $this->actions;
     }
 
-    protected function toApiRequest()
+    public function toApiRequest()
     {
         $map = \array_flip($this->dataMap);
         $data = [];
@@ -367,11 +388,24 @@ class Article extends Model
         if (\count($this->sizes) > 0) {
             $data['barcodes'] = [];
             $data['sizes'] = [];
+            foreach ($this->sizes as $size) {
+                $data['barcodes'][] = $size->toApiRequest('barcodes');
+                $data['sizes'][] = $size->toApiRequest('sizes');
+            }
+        } elseif (\count($this->barcodes) > 0) {
+            $data['barcodes'] = [];
+            foreach ($this->barcodes as $barcode) {
+                $data['barcodes'][] = $barcode->toApiRequest();
+            }
         }
-        foreach ($this->sizes as $size) {
-            $data['barcodes'][] = $size->toApiRequest('barcodes');
-            $data['sizes'][] = $size->toApiRequest('sizes');
-        }
+
+        // custom fields (readonly!?)
+        // if (count($this->fields) > 0) {
+        //     $data['fields'] = [];
+        //     foreach ($this->fields as $name => $value) {
+        //         $data['fields'][$name] = $value;
+        //     }
+        // }
 
         return $data;
     }
