@@ -21,7 +21,7 @@ class SWRetailVersionCommand extends Command
         $client = new Client();
 
         try {
-            $response = $client->apiRequest('GET', '/version');
+            $response = $client->apiRequest('GET', 'version');
 
             $this->output->write('The version of SWRetail API is: ');
             $this->info($response->json->version);

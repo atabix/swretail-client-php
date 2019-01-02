@@ -11,13 +11,13 @@ class SWRetailServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__.'/../config/swretail.php' => config_path('swretail.php'),
+            __DIR__ . '/../config/swretail.php' => config_path('swretail.php'),
         ], 'config');
     }
 
     public function register()
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/swretail.php', 'swretail');
+        $this->mergeConfigFrom(__DIR__ . '/../config/swretail.php', 'swretail');
 
         $this->app->bind('command.swretail:config', SWRetailConfigCommand::class);
         $this->app->bind('command.swretail:version', SWRetailVersionCommand::class);

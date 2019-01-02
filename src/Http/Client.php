@@ -38,7 +38,7 @@ class Client extends HttpClient
     public function __construct($parameters = [])
     {
         $parameters = \array_replace_recursive([
-            'base_uri' => config('swretail.endpoint'),
+            'base_uri' => \rtrim(config('swretail.endpoint'), '/') . '/',
             'auth'     => [
                 config('swretail.username'),
                 config('swretail.password'),
@@ -84,8 +84,9 @@ class Client extends HttpClient
     public function apiRequest(string $method, string $path) : Response
     {
         $method = \strtoupper($method);
+        $path = \ltrim($path, '/');
 
-        return $this->request($method, '/swcloud/SWWService'.$path, $this->requestOptions);
+        return $this->request($method, $path, $this->requestOptions);
     }
 
     /**
@@ -194,6 +195,11 @@ class Client extends HttpClient
     {
         if (! empty($response->json->errorcode)) {
             throw ApiException::fromResponse($response);
+        }
+        if (! empty($response->json->status) && $response->json->status == 'error') {
+            $e = new ApiException('Status Error: ' . $response->json->extended);
+            $e->apiResponse = $response;
+            throw $e;
         }
     }
 }
