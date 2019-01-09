@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use SWRetail\Http\Client;
 use SWRetail\Http\Response;
 use SWRetail\Models\Relation\Address;
+use function SWRetail\snake_case;
 
 class Relation extends Model
 {
@@ -18,7 +19,7 @@ class Relation extends Model
     protected $orders;
 
     // apikey => localkey
-    private $dataMap = [
+    const DATAMAP = [
         'relationtype'  => 'type',
         'relationcode'  => 'code',
         'external_id'   => 'external_id',
@@ -152,10 +153,10 @@ class Relation extends Model
      *
      * @return array[self]
      */
-    public static function searchByLastModify($minutes) : array
+    public static function searchChanged($minutes) : array
     {
         if (\intval($minutes) < 1) {
-            throw new \InvalidArgumentException('Lastmodify must be a positive integer in minutes.');
+            throw new \InvalidArgumentException('Changed must be a positive integer in minutes.');
         }
         $path = 'relation/lastmodify/' . (int) $minutes;
 
@@ -257,11 +258,11 @@ class Relation extends Model
                     $this->address->setValue($key, $value);
                     break;
                 default:
-                    if (! \array_key_exists($key, $this->dataMap)) {
+                    if (! \array_key_exists($key, self::DATAMAP)) {
                         // ignore
                         break;
                     }
-                    $this->setValue($this->dataMap[$key], $value);
+                    $this->setValue(self::DATAMAP[$key], $value);
             }
         }
 
@@ -326,15 +327,15 @@ class Relation extends Model
 
         return $this->setPhone1($phone1);
     }
-    
+
     public function address()
     {
         return $this->address;
     }
-    
+
     public function toApiRequest()
     {
-        $map = \array_flip($this->dataMap);
+        $map = \array_flip(self::DATAMAP);
         $data = [];
         foreach ($this->data as $key => $value) {
             if (! \array_key_exists($key, $map)) {
@@ -349,7 +350,7 @@ class Relation extends Model
         }
 
         $data = $data + $this->address()->toApiRequest();
-
+        
         return $data;
     }
 
@@ -357,12 +358,12 @@ class Relation extends Model
     {
         if (\substr($name, 0, 3) == 'get') {
             $propertyName = snake_case(\substr($name, 3));
-            if (\in_array($propertyName, $this->dataMap)) {
+            if (\in_array($propertyName, self::DATAMAP)) {
                 return $this->data->$propertyName ?? null;
             }
         } elseif (\substr($name, 0, 3) == 'set') {
             $propertyName = snake_case(\substr($name, 3));
-            if (\in_array($propertyName, $this->dataMap)) {
+            if (\in_array($propertyName, self::DATAMAP)) {
                 $value = \reset($arguments);
 
                 return $this->setValue($propertyName, $value);

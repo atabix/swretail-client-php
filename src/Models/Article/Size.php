@@ -15,7 +15,7 @@ class Size extends Model
     protected $salePriceDelta;
     protected $purchasePriceDelta;
 
-    private $map = [
+    const DATAMAP = [
         'position'       => 'position',
         'description'    => 'description',
         'stock'          => 'stock',
@@ -67,10 +67,10 @@ class Size extends Model
     public function setMappedValues($values): self
     {
         foreach ($values as $apiKey => $value) {
-            if (! \array_key_exists($apiKey, $this->map)) {
+            if (! \array_key_exists($apiKey, self::DATAMAP)) {
                 throw new \InvalidArgumentException('Invalid map key');
             }
-            $property = $this->map[$apiKey];
+            $property = self::DATAMAP[$apiKey];
 
             switch ($property) {
                 case 'salePriceDelta':

@@ -20,4 +20,4 @@ $relations = Relation::searchByEmail($search);
 
 // SEARCH BY MOFIFIED IN THE LAST N MINUTES
 $search = 60;
-$relations = Relation::searchByLastModify($search);
+$relations = Relation::searchChanged($search);

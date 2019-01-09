@@ -33,7 +33,7 @@ class Article extends Model
     ];
     private $barcodes = [];
 
-    private $dataMap = [
+    const DATAMAP = [
         'article_id'              => 'id',
         'article_inwebshop'       => 'in_webshop',
         'article_number'          => 'number',
@@ -61,7 +61,7 @@ class Article extends Model
 
         $this->setValue('number', $articleNumber);
         $this->setValue('season', $season);
-        if ($id > 0) {
+        if ($id != 0) {
             $this->setValue('id', $id);
         }
     }
@@ -171,7 +171,7 @@ class Article extends Model
                     $this->setCategory(
                         $data->article_group,
                         $data->article_subgroup,
-                        $data->article_subsubgroup
+                        $data->article_subsubgroup ?? null
                     );
                     break;
 
@@ -188,18 +188,26 @@ class Article extends Model
                     break;
 
                 default:
-                    if (! \array_key_exists($key, $this->dataMap)) {
+                    if (! \array_key_exists($key, self::DATAMAP)) {
                         // ignore
                         break;
                     }
-                    $this->setValue($this->dataMap[$key], $value);
+                    $this->setValue(self::DATAMAP[$key], $value);
             }
         }
 
-        $this->parseSizes($data->sizes, $data->barcodes);
-        $this->parseImages($data->images);
-        $this->parseActions($data->article_actions);
-        $this->parseFields($data->fields);
+        if (isset($data->barcodes)) {
+            $this->parseSizes($data->sizes, $data->barcodes);
+        }
+        if (isset($data->images)) {
+            $this->parseImages($data->images);
+        }
+        if (isset($data->article_actions)) {
+            $this->parseActions($data->article_actions);
+        }
+        if (isset($data->fields)) {
+            $this->parseFields($data->fields);
+        }
     }
 
     public function setValue($key, $value)
@@ -365,7 +373,7 @@ class Article extends Model
 
     public function toApiRequest()
     {
-        $map = \array_flip($this->dataMap);
+        $map = \array_flip(self::DATAMAP);
         $data = [];
         foreach ($this->data as $key => $value) {
             if (! \array_key_exists($key, $map)) {
@@ -414,12 +422,12 @@ class Article extends Model
     {
         if (\substr($name, 0, 3) == 'get') {
             $propertyName = snake_case(\substr($name, 3));
-            if (\in_array($propertyName, $this->dataMap)) {
+            if (\in_array($propertyName, self::DATAMAP)) {
                 return $this->data->$propertyName ?? null;
             }
         } elseif (\substr($name, 0, 3) == 'set') {
             $propertyName = snake_case(\substr($name, 3));
-            if (\in_array($propertyName, $this->dataMap)) {
+            if (\in_array($propertyName, self::DATAMAP)) {
                 $value = \reset($arguments);
 
                 return $this->setValue($propertyName, $value);

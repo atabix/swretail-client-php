@@ -11,7 +11,7 @@ class Action extends Model
     protected $discount;
     protected $discountName;
 
-    private $map = [
+    const DATAMAP = [
         'startdate'    => 'startDate',
         'enddate'      => 'endDate',
         'discount'     => 'discount',
@@ -28,10 +28,10 @@ class Action extends Model
     public function setMappedValues($values): self
     {
         foreach ($values as $apiKey => $value) {
-            if (! \array_key_exists($apiKey, $this->map)) {
+            if (! \array_key_exists($apiKey, self::DATAMAP)) {
                 throw new \InvalidArgumentException('Invalid map key');
             }
-            $property = $this->map[$apiKey];
+            $property = self::DATAMAP[$apiKey];
 
             switch ($property) {
                 case 'startDate':

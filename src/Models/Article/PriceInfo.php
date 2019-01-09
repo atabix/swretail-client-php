@@ -16,7 +16,7 @@ class PriceInfo extends Model // ModelInfo
     protected $wholesale;
     protected $tax_rate;
 
-    private $map = [
+    const DATAMAP = [
         'article_price_web'          => 'web',
         'article_basepurprice'       => 'purchase',
         'article_baseprice'          => 'base',
@@ -28,10 +28,10 @@ class PriceInfo extends Model // ModelInfo
 
     public function setMappedValue($apiKey, $value)
     {
-        if (! \array_key_exists($apiKey, $this->map)) {
+        if (! \array_key_exists($apiKey, self::DATAMAP)) {
             throw new \InvalidArgumentException('Invalid map key');
         }
-        $property = $this->map[$apiKey];
+        $property = self::DATAMAP[$apiKey];
         $this->$property = price_or_percentage($value);
 
         return $this;
@@ -39,7 +39,7 @@ class PriceInfo extends Model // ModelInfo
 
     public function toApiRequest()
     {
-        $map = \array_flip($this->map);
+        $map = \array_flip(self::DATAMAP);
         $data = [];
         foreach ($map as $property => $apiKey) {
             if (! empty($this->$property)) {

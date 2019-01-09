@@ -9,7 +9,7 @@ class Barcode extends Model
     protected $position;
     protected $barcode;
 
-    private $map = [
+    const DATAMAP = [
         'position' => 'position',
         'barcode'  => 'barcode',
     ];
@@ -49,10 +49,10 @@ class Barcode extends Model
     public function setMappedValues($values): self
     {
         foreach ($values as $apiKey => $value) {
-            if (! \array_key_exists($apiKey, $this->map)) {
+            if (! \array_key_exists($apiKey, self::DATAMAP)) {
                 throw new \InvalidArgumentException('Invalid map key');
             }
-            $property = $this->map[$apiKey];
+            $property = self::DATAMAP[$apiKey];
 
             switch ($property) {
                 case 'position':
@@ -74,5 +74,10 @@ class Barcode extends Model
             'position' => $this->position,
             'barcode'  => $this->barcode,
         ];
+    }
+    
+    public function __toString()
+    {
+        return $this->barcode;
     }
 }
