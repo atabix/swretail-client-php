@@ -35,6 +35,9 @@ $article
     ->addSize(Size::barcode('21040004')->setName('L')->setPosition(4))
     ->addSize(Size::barcode('21040005')->setName('XL')->setPosition(5));
 
+// - OR (instead of sizes) -
+$article->addBarcode(new Barcode('21040001', 1));
+
 
 $articleId = $article->create(); // Call API.
 
