@@ -7,6 +7,8 @@ use SWRetail\Models\Article\ActionArticles;
 use SWRetail\Models\Article\ArticleChanged;
 use SWRetail\Models\Article\Barcode;
 use SWRetail\Models\Article\Category;
+use SWRetail\Models\Article\Chunks;
+use SWRetail\Models\Article\Image;
 use SWRetail\Models\Article\MetaInfo;
 use SWRetail\Models\Article\PriceInfo;
 use SWRetail\Models\Article\Size;
@@ -459,5 +461,10 @@ class Article extends Model
         $warehouseId = $warehouse instanceof Warehouse ? $warehouse->getId() : $warehouse;
 
         return new Stock($this->id, $position, $warehouseId);
+    }
+
+    public static function chunks()
+    {
+        return new Chunks();
     }
 }
