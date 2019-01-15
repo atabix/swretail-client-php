@@ -3,6 +3,7 @@
 namespace SWRetail\Models\Article;
 
 use SWRetail\Models\Model;
+use function SWRetail\price_or_percentage;
 
 class Action extends Model
 {
@@ -40,7 +41,9 @@ class Action extends Model
                 case 'endDate':
                     $value = \DateTime::createFromFormat('Ymd His', "$value 235959");
                     break;
-                case 'discount': // Price/Percentage?
+                case 'discount':
+                    $value = price_or_percentage($value);
+                    break;
                 default:
                     // no change.
             }
@@ -51,8 +54,13 @@ class Action extends Model
         return $this;
     }
 
-    public function getPosition()
+    public function getDescription()
     {
-        return $this->order;
+        return $this->discountName;
+    }
+
+    public function getDiscount()
+    {
+        return price_or_percentage($this->discount);
     }
 }

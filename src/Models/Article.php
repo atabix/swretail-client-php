@@ -6,6 +6,7 @@ use SWRetail\Http\Client;
 use SWRetail\Models\Article\ActionArticles;
 use SWRetail\Models\Article\ArticleChanged;
 use SWRetail\Models\Article\Barcode;
+use SWRetail\Models\Article\Action;
 use SWRetail\Models\Article\Category;
 use SWRetail\Models\Article\Chunks;
 use SWRetail\Models\Article\Image;

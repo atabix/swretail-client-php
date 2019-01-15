@@ -60,6 +60,7 @@ class Response // implements ResponseInterface by magic
             try {
                 $this->json = json_decode($body);
             } catch (\InvalidArgumentException $e) {
+                // Keep raw body in response, for that binary data response.
                 $this->json = (object) [
                     'error' => $e->getMessage(),
                     'body'  => $body,
