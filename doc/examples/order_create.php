@@ -7,7 +7,7 @@ $relation = Relation::byCode('K100135');
 $order = new Order('8765-fda1');
 
 // Required values:
-$order->setState('created')
+$order->setStatus('created')
     ->setDate(Carbon::now()) // or valid string, also sets 'time';
     ->setShipTo($relation) // Relation object
     ->setInvoiceTo($relation) // Relation object

@@ -5,11 +5,12 @@ namespace SWRetail\Models\Order;
 use SWRetail\Models\Article;
 use SWRetail\Models\Article\Barcode;
 use SWRetail\Models\Model;
+use SWRetail\Models\Traits\UseDataMap;
 use function SWRetail\price_or_percentage;
 
 class Line extends Model
 {
-    protected $data;
+    use UseDataMap;
 
     protected $order;
     public $article;
@@ -198,19 +199,8 @@ class Line extends Model
 
     public function toApiRequest()
     {
-        $map = \array_flip(self::DATAMAP);
-        $data = [];
-        foreach ($this->data as $key => $value) {
-            if (! \array_key_exists($key, $map)) {
-                \user_error("Invalid key: $key", \E_USER_NOTICE);
-                continue;
-            }
-            if (\is_null($value)) {
-                continue;
-            }
-            $apiKey = $map[$key];
-            $data[$apiKey] = $this->getApiValue($key, $value);
-        }
+        $data = $this->mapDataToApiRequest();
+
         if ($this->barcode instanceof Barcode) {
             $data['article_barcode'] = (string) $this->barcode;
         } elseif ($this->article->getId() == -1) {
@@ -218,24 +208,5 @@ class Line extends Model
         }
 
         return $data;
-    }
-
-    public function __call($name, $arguments)
-    {
-        if (\substr($name, 0, 3) == 'get') {
-            $propertyName = snake_case(\substr($name, 3));
-            if (\in_array($propertyName, self::DATAMAP)) {
-                return $this->data->$propertyName ?? null;
-            }
-        } elseif (\substr($name, 0, 3) == 'set') {
-            $propertyName = snake_case(\substr($name, 3));
-            if (\in_array($propertyName, self::DATAMAP)) {
-                $value = \reset($arguments);
-
-                return $this->setValue($propertyName, $value);
-            }
-        }
-
-        throw new \BadMethodCallException("Call to undefined method '$name' in " . __FILE__ . ':' . __LINE__);
     }
 }

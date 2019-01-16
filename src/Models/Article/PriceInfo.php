@@ -3,18 +3,12 @@
 namespace SWRetail\Models\Article;
 
 use SWRetail\Models\Model;
+use SWRetail\Models\Traits\UseDataMap;
 use function SWRetail\price_or_percentage;
-use function SWRetail\snake_case;
 
 class PriceInfo extends Model // ModelInfo
 {
-    protected $base;
-    protected $purchase;
-    protected $discount;
-    protected $web;
-    protected $web_discount;
-    protected $wholesale;
-    protected $tax_rate;
+    use UseDataMap;
 
     const DATAMAP = [
         'article_price_web'          => 'web',
@@ -26,47 +20,36 @@ class PriceInfo extends Model // ModelInfo
         'article_taxrate'            => 'tax_rate',
     ];
 
+    public function __construct()
+    {
+        $this->data = new \stdClass();
+    }
+
     public function setMappedValue($apiKey, $value)
     {
         if (! \array_key_exists($apiKey, self::DATAMAP)) {
             throw new \InvalidArgumentException('Invalid map key');
         }
         $property = self::DATAMAP[$apiKey];
-        $this->$property = price_or_percentage($value);
+        $this->setValue($property, $value);
 
         return $this;
     }
 
-    public function toApiRequest()
+    public function setValue($key, $value)
     {
-        $map = \array_flip(self::DATAMAP);
-        $data = [];
-        foreach ($map as $property => $apiKey) {
-            if (! empty($this->$property)) {
-                $data[$apiKey] = (string) $this->$property;
-            }
-        }
+        $this->data->$key = price_or_percentage($value);
 
-        return $data;
+        return $this;
     }
 
-    public function __call($name, $arguments)
+    protected function getApiValue($key, $value)
     {
-        if (\substr($name, 0, 3) == 'get') {
-            $propertyName = snake_case(\substr($name, 3));
-            if (\property_exists($this, $propertyName)) {
-                return $this->$propertyName;
-            }
-        } elseif (\substr($name, 0, 3) == 'set') {
-            $propertyName = snake_case(\substr($name, 3));
-            if (\property_exists($this, $propertyName)) {
-                $value = \reset($arguments);
-                $this->$propertyName = price_or_percentage($value);
+        return (string) $value;
+    }
 
-                return $this;
-            }
-        }
-
-        throw new \BadMethodCallException("Call to undefined method '$name' in " . __FILE__ . ':' . __LINE__);
+    public function toApiRequest()
+    {
+        return $this->mapDataToApiRequest();
     }
 }

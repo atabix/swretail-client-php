@@ -3,10 +3,10 @@
 namespace SWRetail\Models;
 
 use SWRetail\Http\Client;
+use SWRetail\Models\Article\Action;
 use SWRetail\Models\Article\ActionArticles;
 use SWRetail\Models\Article\ArticleChanged;
 use SWRetail\Models\Article\Barcode;
-use SWRetail\Models\Article\Action;
 use SWRetail\Models\Article\Category;
 use SWRetail\Models\Article\Chunks;
 use SWRetail\Models\Article\Image;
@@ -15,11 +15,12 @@ use SWRetail\Models\Article\PriceInfo;
 use SWRetail\Models\Article\Size;
 use SWRetail\Models\Article\Stock;
 use SWRetail\Models\Article\StockChanged;
-use function SWRetail\snake_case;
+use SWRetail\Models\Traits\UseDataMap;
 
 class Article extends Model
 {
-    protected $data;
+    use UseDataMap;
+
     protected $id;
 
     protected $metaInfo;
@@ -376,16 +377,7 @@ class Article extends Model
 
     public function toApiRequest()
     {
-        $map = \array_flip(self::DATAMAP);
-        $data = [];
-        foreach ($this->data as $key => $value) {
-            if (! \array_key_exists($key, $map)) {
-                \user_error("Invalid key: $key", \E_USER_NOTICE);
-                continue;
-            }
-            $apiKey = $map[$key];
-            $data[$apiKey] = $value;
-        }
+        $data = $this->mapDataToApiRequest();
 
         // category
         if ($this->category instanceof Category) {
@@ -419,25 +411,6 @@ class Article extends Model
         // }
 
         return $data;
-    }
-
-    public function __call($name, $arguments)
-    {
-        if (\substr($name, 0, 3) == 'get') {
-            $propertyName = snake_case(\substr($name, 3));
-            if (\in_array($propertyName, self::DATAMAP)) {
-                return $this->data->$propertyName ?? null;
-            }
-        } elseif (\substr($name, 0, 3) == 'set') {
-            $propertyName = snake_case(\substr($name, 3));
-            if (\in_array($propertyName, self::DATAMAP)) {
-                $value = \reset($arguments);
-
-                return $this->setValue($propertyName, $value);
-            }
-        }
-
-        throw new \BadMethodCallException("Call to undefined method '$name' in " . __FILE__ . ':' . __LINE__);
     }
 
     // Changed / Stock related.

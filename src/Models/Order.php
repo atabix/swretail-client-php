@@ -8,18 +8,18 @@ use SWRetail\Http\Response;
 use SWRetail\Models\Order\Line;
 use SWRetail\Models\Order\OrderChanged;
 use SWRetail\Models\Relation\Type;
+use SWRetail\Models\Traits\UseDataMap;
 use function SWRetail\price_or_percentage;
-use function SWRetail\snake_case;
 
 class Order extends Model
 {
+    use UseDataMap;
+
     protected $id;
     protected $orderNumber;
 
     protected $relationShipping;
     protected $relationInvoice;
-
-    protected $data;
 
     protected $lines;
 
@@ -255,19 +255,8 @@ class Order extends Model
 
     public function toApiRequest()
     {
-        $map = \array_flip(self::DATAMAP);
-        $data = [];
-        foreach ($this->data as $key => $value) {
-            if (! \array_key_exists($key, $map)) {
-                \user_error("Invalid key: $key", \E_USER_NOTICE);
-                continue;
-            }
-            if (\is_null($value)) {
-                continue;
-            }
-            $apiKey = $map[$key];
-            $data[$apiKey] = $this->getApiValue($key, $value);
-        }
+        $data = $this->mapDataToApiRequest();
+
         $data['date'] = Carbon::parse($this->data->date)->format('Y-m-d');
         $data['time'] = Carbon::parse($this->data->date)->format('H:i');
         $data['inetnumber'] = $this->orderNumber;
@@ -280,25 +269,6 @@ class Order extends Model
         }
 
         return $data;
-    }
-
-    public function __call($name, $arguments)
-    {
-        if (\substr($name, 0, 3) == 'get') {
-            $propertyName = snake_case(\substr($name, 3));
-            if (\in_array($propertyName, self::DATAMAP)) {
-                return $this->data->$propertyName ?? null;
-            }
-        } elseif (\substr($name, 0, 3) == 'set') {
-            $propertyName = snake_case(\substr($name, 3));
-            if (\in_array($propertyName, self::DATAMAP)) {
-                $value = \reset($arguments);
-
-                return $this->setValue($propertyName, $value);
-            }
-        }
-
-        throw new \BadMethodCallException("Call to undefined method '$name' in " . __FILE__ . ':' . __LINE__);
     }
 
     /**
