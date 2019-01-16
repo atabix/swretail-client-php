@@ -1,2 +1,5 @@
 vendor/
-
+.env
+.tags*
+_notes/
+TODO.md

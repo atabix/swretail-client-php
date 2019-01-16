@@ -34,7 +34,7 @@ $relation = Relation::byCode('K100123');
 
 $order = new Order('87654');
 
-$order->setState('created')
+$order->setStatus('created')
     ->setDate('2019-01-28')
     ->setShipTo($relation) 
     ->setInvoiceTo($relation)
