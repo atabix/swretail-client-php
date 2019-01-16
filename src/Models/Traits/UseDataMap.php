@@ -64,9 +64,9 @@ trait UseDataMap
      * Fallback definition to parse retrieved api data.
      * Override to handle keys for specific types.
      *
-     * @param array $data
+     * @param array|object $data
      */
-    public function parseData(array $data)
+    public function parseData($data)
     {
         foreach ($data as $key => $value) {
             if (! \array_key_exists($key, self::DATAMAP) || \is_null($value)) {
