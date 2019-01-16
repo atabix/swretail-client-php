@@ -266,7 +266,19 @@ class Relation extends Model
             }
         }
 
-        // $this->parseOrders($data->orders);
+        $this->parseOrders($data->orders);
+    }
+
+    protected function parseOrders($rawOrders)
+    {
+        if (empty($rawOrders)) {
+            return;
+        }
+        foreach ($rawOrders as $orderData) {
+            $order = new Order($orderData->inetnumber);
+            $order->parseData($orderData);
+            $this->orders[] = $order;
+        }
     }
 
     public function setValue($key, $value)
@@ -328,9 +340,19 @@ class Relation extends Model
         return $this->setPhone1($phone1);
     }
 
+    // public function addOrder(Order $order)
+    // {
+    //     $this->orders[] = $order;
+    // }
+
     public function address()
     {
         return $this->address;
+    }
+
+    public function orders()
+    {
+        return $this->orders;
     }
 
     public function toApiRequest()
@@ -338,6 +360,14 @@ class Relation extends Model
         $data = $this->mapDataToApiRequest();
 
         $data = $data + $this->address()->toApiRequest();
+
+        // Doc says yes, Api says no.
+        // if (! empty($this->orders)) {
+        //     $data['orders'] = [];
+        //     foreach ($this->orders as $order) {
+        //         $data['orders'][] = $order->toApiRequest();
+        //     }
+        // }
 
         return $data;
     }

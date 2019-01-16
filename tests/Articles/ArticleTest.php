@@ -50,6 +50,8 @@ class ArticleTest extends TestCase
         $response->parseJsonBody();
 
         $data = $response->json;
+        $this->assertEquals($json, $data);
+        
         $article = new Article($data->article_number, $data->article_season);
         $article->parseData($data);
 

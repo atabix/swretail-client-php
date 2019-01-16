@@ -159,6 +159,11 @@ class Order extends Model
             $this->addLine($line);
         }
     }
+    
+    public function lines()
+    {
+        return $this->lines;
+    }
 
     public function setValue($key, $value)
     {
@@ -260,8 +265,12 @@ class Order extends Model
         $data['date'] = Carbon::parse($this->data->date)->format('Y-m-d');
         $data['time'] = Carbon::parse($this->data->date)->format('H:i');
         $data['inetnumber'] = $this->orderNumber;
-        $data['relation_code_ship'] = $this->relationShipping->getCode();
-        $data['relation_code_invoice'] = $this->relationInvoice->getCode();
+        if ($this->relationShipping) {
+            $data['relation_code_ship'] = $this->relationShipping->getCode();
+        }
+        if ($this->relationInvoice) {
+            $data['relation_code_invoice'] = $this->relationInvoice->getCode();
+        }
 
         $data['order_lines'] = [];
         foreach ($this->lines as $line) {
