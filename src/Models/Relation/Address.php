@@ -60,6 +60,31 @@ class Address extends Model
         return $this;
     }
 
+    public function getStreet()
+    {
+        return $this->street;
+    }
+
+    public function getHousenumber()
+    {
+        return $this->housenumber;
+    }
+
+    public function getZipcode()
+    {
+        return $this->zipcode;
+    }
+
+    public function getCity()
+    {
+        return $this->city;
+    }
+
+    public function getCountry()
+    {
+        return $this->country;
+    }
+
     public function toApiRequest()
     {
         $fields = ['street', 'housenumber', 'zipcode', 'city', 'country'];
