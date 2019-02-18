@@ -364,6 +364,11 @@ class Article extends Model
     {
         return $this->sizes;
     }
+    
+      public function getFields(): array
+    {
+        return $this->fields;
+    }
 
     public function getImages(): array
     {
