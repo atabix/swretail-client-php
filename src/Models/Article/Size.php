@@ -7,6 +7,7 @@ use SWRetail\Models\Type\Price;
 
 class Size extends Model
 {
+    use UseDataMap;
     protected $position;
     protected $description;
     protected $barcode;
