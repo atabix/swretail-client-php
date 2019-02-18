@@ -4,6 +4,7 @@ namespace SWRetail\Models\Article;
 
 use SWRetail\Models\Model;
 use SWRetail\Models\Type\Price;
+use SWRetail\Models\Traits\UseDataMap;
 
 class Size extends Model
 {
