@@ -3,61 +3,56 @@
 namespace SWRetail\Models\Article;
 
 use SWRetail\Models\Model;
-use SWRetail\Models\Type\Price;
 use SWRetail\Models\Traits\UseDataMap;
+use SWRetail\Models\Type\Price;
 
 class Size extends Model
 {
     use UseDataMap;
-    
-    protected $position;
-    protected $description;
-    protected $barcode;
 
-    protected $stock;
-    protected $salePriceDelta;
-    protected $purchasePriceDelta;
+    protected $barcodes = [];
 
     const DATAMAP = [
         'position'       => 'position',
-        'description'    => 'description',
+        'description'    => 'name',
         'stock'          => 'stock',
-        'salepricedelta' => 'salePriceDelta',
-        'purpricedelta'  => 'purchasePriceDelta',
-        'barcode'        => 'barcode',
+        'salepricedelta' => 'sale_price_delta',
+        'purpricedelta'  => 'purchase_price_delta',
     ];
 
-    public static function barcode($barcode): self
+    public function __construct()
     {
-        $size = new static();
-
-        return $size->setBarcode($barcode);
+        $this->data = new \stdClass();
     }
 
-    public function setBarcode($value)
+    public function addBarcode(Barcode $barcode)
     {
-        $this->barcode = $value;
+        $this->barcodes[] = $barcode;
 
         return $this;
     }
 
-    public function setName($value) : self
+    public function getBarcodes()
     {
-        $this->description = $value;
-
-        return $this;
+        return $this->barcodes;
     }
 
-    public function setPosition(int $value): self
+    public function setValue($key, $value)
     {
-        $this->position = $value;
+        switch ($key) {
+            case 'position':
+            case 'stock':
+                $this->data->$key = (int) $value;
+                break;
+            case 'sale_price_delta':
+            case 'purchase_price_delta':
+                $this->data->$key = new Price($value);
+                break;
+            default:
+                $this->data->$key = (string) $value;
+        }
 
         return $this;
-    }
-
-    public function getPosition(): ?int
-    {
-        return $this->position;
     }
 
     /**
@@ -75,37 +70,17 @@ class Size extends Model
             }
             $property = self::DATAMAP[$apiKey];
 
-            switch ($property) {
-                case 'salePriceDelta':
-                case 'purchasePriceDelta':
-                    $sizeValue = new Price($value);
-                    break;
-                case 'position':
-                case 'stock':
-                    $sizeValue = (int) $value;
-                    break;
-                default:
-                    $sizeValue = $value;
-            }
-
-            $this->$property = $sizeValue;
+            $this->setValue($property, $value);
         }
 
         return $this;
     }
 
-    public function toApiRequest($key = 'sizes')
+    public function toApiRequest()
     {
-        if ($key == 'barcodes') {
-            return [
-                'position' => $this->position,
-                'barcode'  => $this->barcode,
-            ];
-        }
-
         return [
-            'position'    => $this->position,
-            'description' => $this->description,
+            'position'    => $this->getPosition(),
+            'description' => $this->getName(),
         ];
     }
 }
