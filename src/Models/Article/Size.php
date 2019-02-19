@@ -9,6 +9,7 @@ use SWRetail\Models\Traits\UseDataMap;
 class Size extends Model
 {
     use UseDataMap;
+    
     protected $position;
     protected $description;
     protected $barcode;

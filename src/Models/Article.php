@@ -2,6 +2,7 @@
 
 namespace SWRetail\Models;
 
+use SWRetail\Exceptions\ApiException;
 use SWRetail\Http\Client;
 use SWRetail\Models\Article\Action;
 use SWRetail\Models\Article\ActionArticles;
@@ -88,6 +89,11 @@ class Article extends Model
 
         $response = Client::requestApi('GET', $path);
         $data = $response->json;
+
+        // Api returns errorcode 0 when article does not exist (should be errorcode 11).
+        if (empty($data->article_number)) {
+            throw ApiException::fromResponse($response);
+        }
 
         $article = new static($data->article_number, $data->article_season);
         $article->parseData($data);
@@ -364,8 +370,8 @@ class Article extends Model
     {
         return $this->sizes;
     }
-    
-      public function getFields(): array
+
+    public function getFields(): array
     {
         return $this->fields;
     }
