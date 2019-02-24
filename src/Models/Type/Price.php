@@ -25,6 +25,6 @@ class Price implements \JsonSerializable
 
     public function __toString()
     {
-        return \number_format($this->value, $this->decimals);
+        return (string) $this->value;
     }
 }
