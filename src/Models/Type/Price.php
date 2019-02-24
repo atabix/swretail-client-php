@@ -2,7 +2,7 @@
 
 namespace SWRetail\Models\Type;
 
-class Price
+class Price implements \JsonSerializable
 {
     protected $value;
     
