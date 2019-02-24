@@ -15,7 +15,12 @@ class Price
     
     public function toFloat()
     {
-        return $this->value;
+        return (float) $this->value;
+    }
+    
+    public function jsonSerialize()
+    {
+        return $this->toFloat();
     }
 
     public function __toString()
