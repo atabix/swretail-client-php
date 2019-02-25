@@ -3,40 +3,38 @@
 namespace SWRetail\Models\Article;
 
 use SWRetail\Models\Model;
+use SWRetail\Models\Traits\UseDataMap;
 
 class Barcode extends Model
 {
-    protected $position;
-    protected $barcode;
+    use UseDataMap;
 
     const DATAMAP = [
         'position' => 'position',
         'barcode'  => 'barcode',
     ];
 
-    public function __construct($barcode, int $position = 1)
+    public function __construct($barcode = null, int $position = 1)
     {
-        $this->barcode = $barcode;
-        $this->position = $position;
+        $this->data = new \stdClass();
+
+        if (! \is_null($barcode)) {
+            $this->setBarcode($barcode);
+            $this->setPosition($position);
+        }
     }
 
-    public function setBarcode($value)
+    public function setValue($key, $value)
     {
-        $this->barcode = $value;
+        switch ($key) {
+            case 'position':
+                $this->data->$key = (int) $value;
+                break;
+            default:
+                $this->data->$key = (string) $value;
+        }
 
         return $this;
-    }
-
-    public function setPosition(int $value): self
-    {
-        $this->position = $value;
-
-        return $this;
-    }
-
-    public function getPosition(): ?int
-    {
-        return $this->position;
     }
 
     /**
@@ -54,15 +52,7 @@ class Barcode extends Model
             }
             $property = self::DATAMAP[$apiKey];
 
-            switch ($property) {
-                case 'position':
-                    $sizeValue = (int) $value;
-                    break;
-                default:
-                    $sizeValue = $value;
-            }
-
-            $this->$property = $sizeValue;
+            $this->setValue($property, $value);
         }
 
         return $this;
@@ -71,13 +61,13 @@ class Barcode extends Model
     public function toApiRequest()
     {
         return [
-            'position' => $this->position,
-            'barcode'  => $this->barcode,
+            'position' => $this->getPosition(),
+            'barcode'  => $this->getBarcode(),
         ];
     }
-    
+
     public function __toString()
     {
-        return $this->barcode;
+        return $this->getBarcode();
     }
 }

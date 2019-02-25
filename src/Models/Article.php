@@ -2,6 +2,7 @@
 
 namespace SWRetail\Models;
 
+use SWRetail\Exceptions\ApiException;
 use SWRetail\Http\Client;
 use SWRetail\Models\Article\Action;
 use SWRetail\Models\Article\ActionArticles;
@@ -28,6 +29,7 @@ class Article extends Model
     protected $category;
 
     protected $sizes = [];
+    protected $barcodes = [];
     protected $images = [];
     protected $actions = [];
     protected $fields = [];
@@ -35,7 +37,6 @@ class Article extends Model
         'upsell'  => [],
         'crossell'=> [],
     ];
-    private $barcodes = [];
 
     const DATAMAP = [
         'article_id'              => 'id',
@@ -88,6 +89,11 @@ class Article extends Model
 
         $response = Client::requestApi('GET', $path);
         $data = $response->json;
+
+        // Api returns errorcode 0 when article does not exist (should be errorcode 11).
+        if (empty($data->article_number)) {
+            throw ApiException::fromResponse($response);
+        }
 
         $article = new static($data->article_number, $data->article_season);
         $article->parseData($data);
@@ -200,9 +206,15 @@ class Article extends Model
             }
         }
 
-        if (isset($data->barcodes)) {
-            $this->parseSizes($data->sizes, $data->barcodes);
+        // Parse sizes before barcodes.
+        if (isset($data->sizes)) {
+            $this->parseSizes($data->sizes);
         }
+
+        if (isset($data->barcodes)) {
+            $this->parseBarcodes($data->barcodes);
+        }
+
         if (isset($data->images)) {
             $this->parseImages($data->images);
         }
@@ -251,18 +263,23 @@ class Article extends Model
         return $this;
     }
 
-    private function parseSizes($sizeData, $barcodeData)
+    private function parseSizes($sizeData)
     {
-        $this->data->barcodes = \array_reduce($barcodeData, function ($carry, $barcode) {
-            $carry[$barcode->position] = $barcode->barcode;
-
-            return $carry;
-        }, []);
-
         foreach ($sizeData as $sizeValues) {
-            $barcode = $this->data->barcodes[$sizeValues->position];
-            $size = Size::barcode($barcode)->setMappedValues($sizeValues);
+            $size = (new Size())->setMappedValues($sizeValues);
             $this->addSize($size);
+        }
+    }
+
+    private function parseBarcodes($barcodeData)
+    {
+        foreach ($barcodeData as $barcodeValues) {
+            $barcode = (new Barcode())->setMappedValues($barcodeValues);
+            $this->addBarcode($barcode);
+
+            if (\array_key_exists($barcode->getPosition(), $this->sizes)) {
+                $this->sizes[$barcode->getPosition()]->addBarcode($barcode);
+            }
         }
     }
 
@@ -303,7 +320,7 @@ class Article extends Model
 
     public function addSize(Size $size)
     {
-        $position = $size->getPosition() ?? \max(\array_keys($this->sizes)) + 1;
+        $position = $size->getPosition() ?? \max(\array_merge(\array_keys($this->sizes), [0])) + 1;
         $this->sizes[$position] = $size;
 
         return $this;
@@ -320,8 +337,11 @@ class Article extends Model
 
     public function addBarcode(Barcode $barcode)
     {
-        $position = $barcode->getPosition() ?? \max(\array_keys($this->barcodes)) + 1;
-        $this->barcodes[$position] = $barcode;
+        $position = $barcode->getPosition() ?? \max(\array_merge(\array_keys($this->barcodes), [0])) + 1;
+        if (! \array_key_exists($position, $this->barcodes)) {
+            $this->barcodes[$position] = [];
+        }
+        $this->barcodes[$position][] = $barcode;
 
         return $this;
     }
@@ -364,8 +384,13 @@ class Article extends Model
     {
         return $this->sizes;
     }
-    
-      public function getFields(): array
+
+    public function getBarcodes(): array
+    {
+        return $this->barcodes;
+    }
+
+    public function getFields(): array
     {
         return $this->fields;
     }
@@ -394,16 +419,18 @@ class Article extends Model
 
         // sizes/barcodes
         if (\count($this->sizes) > 0) {
-            $data['barcodes'] = [];
             $data['sizes'] = [];
             foreach ($this->sizes as $size) {
-                $data['barcodes'][] = $size->toApiRequest('barcodes');
-                $data['sizes'][] = $size->toApiRequest('sizes');
+                $data['sizes'][] = $size->toApiRequest();
             }
-        } elseif (\count($this->barcodes) > 0) {
+        }
+
+        if (\count($this->barcodes) > 0) {
             $data['barcodes'] = [];
-            foreach ($this->barcodes as $barcode) {
-                $data['barcodes'][] = $barcode->toApiRequest();
+            foreach ($this->barcodes as $position => $barcodes) {
+                foreach ($barcodes as $barcode) {
+                    $data['barcodes'][] = $barcode->toApiRequest();
+                }
             }
         }
 

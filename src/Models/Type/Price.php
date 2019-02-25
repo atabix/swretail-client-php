@@ -2,7 +2,7 @@
 
 namespace SWRetail\Models\Type;
 
-class Price
+class Price implements \JsonSerializable
 {
     protected $value;
     
@@ -15,11 +15,16 @@ class Price
     
     public function toFloat()
     {
-        return $this->value;
+        return (float) $this->value;
+    }
+    
+    public function jsonSerialize()
+    {
+        return $this->toFloat();
     }
 
     public function __toString()
     {
-        return \number_format($this->value, $this->decimals);
+        return (string) $this->value;
     }
 }
