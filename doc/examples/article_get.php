@@ -1,5 +1,10 @@
 <?php 
 
+use SWRetail\Models\Article;
+use SWRetail\Models\Article\Barcode;
+
+use SWRetail\Models\Type\Percentage;
+use SWRetail\Models\Type\Price;
 
 // GET ONE ARTICLE
 

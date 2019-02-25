@@ -1,5 +1,6 @@
 <?php
 
+use SWRetail\Models\Relation;
 
 // RETRIEVE BY SW CODE
 $search = 'K100135';
@@ -9,7 +10,6 @@ $relation = Relation::byCode($search);
 $search = 'C24';
 $relation = Relation::byExternalId($search);
 
-//
 // SEARCH BY UNIFIED ZIPCODE
 $search = '7908HB12';
 $relations = Relation::searchByUnifiedZip($search);

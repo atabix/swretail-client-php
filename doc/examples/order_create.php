@@ -1,5 +1,15 @@
 <?php 
 
+use SWRetail\Models\Article;
+use SWRetail\Models\Article\Barcode;
+use SWRetail\Models\Order;
+
+use SWRetail\Models\Order\Line;
+use SWRetail\Models\Relation;
+
+use SWRetail\Models\Type\Percentage;
+use SWRetail\Models\Type\Price;
+
 // Need an existing relation to create an order.
 $relation = Relation::byCode('K100135');
 

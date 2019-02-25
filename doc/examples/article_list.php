@@ -1,5 +1,8 @@
 <?php 
 
+use SWRetail\Models\Article;
+use SWRetail\Models\Warehouse;
+
 // LIST WAREHOUSES 
 $warehouses = Warehouse::getAll();
 var_dump($warehouses);

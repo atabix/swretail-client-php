@@ -1,5 +1,6 @@
 <?php
 
+use SWRetail\Models\Order;
 
 // Retrieve existing order,
 $order = Order::byWebId('8765-fd9a');

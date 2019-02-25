@@ -1,5 +1,7 @@
 <?php
 
+use SWRetail\Models\Relation;
+
 // CREATE RELATION
 
 $relation = new Relation(Type::CUSTOMER);
