@@ -1,5 +1,7 @@
 <?php 
 
+use SWRetail\Models\Report;
+
 // All these report results have their items aggregated by Store/CashRegister combi.
 
 $date = '2019-01-09';

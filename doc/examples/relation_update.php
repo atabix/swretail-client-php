@@ -1,5 +1,7 @@
 <?php 
 
+use SWRetail\Models\Relation;
+
 $relation = new Relation(RelationType::CUSTOMER, 'K100135');
 
 // Or retrieve full data from API:

@@ -1,5 +1,7 @@
 <?php 
 
+use SWRetail\Models\Order;
+
 // by SWRetail ID:
 $order = Order::get(352489);
 // by Webshop ID:
