@@ -3,6 +3,7 @@
 namespace SWRetail\Models;
 
 use Carbon\Carbon;
+use SWRetail\Exceptions\ApiException;
 use SWRetail\Http\Client;
 use SWRetail\Http\Response;
 use SWRetail\Models\Relation\Address;
@@ -101,6 +102,11 @@ class Relation extends Model
     private static function handleFindResponse(Response $response) : self
     {
         $data = $response->json;
+
+        // Api returns errorcode 0 when relation does not exist (should be errorcode 11).
+        if (empty($data->relationtype)) {
+            throw ApiException::fromResponse($response);
+        }
 
         $relation = new static($data->relationtype, $data->relationcode);
         $relation->parseData($data);
