@@ -3,10 +3,8 @@
 use SWRetail\Models\Article;
 use SWRetail\Models\Article\Barcode;
 use SWRetail\Models\Order;
-
 use SWRetail\Models\Order\Line;
 use SWRetail\Models\Relation;
-
 use SWRetail\Models\Type\Percentage;
 use SWRetail\Models\Type\Price;
 
@@ -16,21 +14,21 @@ $relation = Relation::byCode('K100135');
 // Initialize with your ordernumber.
 $order = new Order('8765-fda1');
 
-// Required values:
+// Required values (some can be empty, but must be set):
 $order->setStatus('created')
     ->setDate(Carbon::now()) // or valid string, also sets 'time';
     ->setShipTo($relation) // Relation object
+    ->setShippingCost(new Price('4.95'))
+    ->setShipper('PostNL')
+    ->setTracker('TR5003')
     ->setInvoiceTo($relation) // Relation object
-    ->setPaymentMethod('iDeal');
+    ->setPaymentMethod('iDeal')
+    ->setPaymentStatus('pending')
+    ->setRemark('Lorem ipsum dolor sid amet.');
 
 // optional values:
 $order
-    ->setTracker('TR5003')
-    ->setWholesale(false)
-    ->setShipper('PostNL')
-    ->setRemark('Lorem ipsum dolor sid amet.')
-    ->setPaymentStatus('pending')
-    ->setShippingCost('4.95'); // or Price object
+    ->setWholesale(false);
 
 // (1) Add an existing Article as orderline.
 $article = Article::get(38);
