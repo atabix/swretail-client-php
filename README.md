@@ -29,6 +29,7 @@ use SWRetail\Models\Article\Barcode;
 use SWRetail\Models\Order;
 use SWRetail\Models\Order\Line;
 use SWRetail\Models\Relation;
+use SWRetail\Models\Type\Price;
 
 $relation = Relation::byCode('K100123');
 
@@ -36,9 +37,11 @@ $order = new Order('87654');
 
 $order->setStatus('created')
     ->setDate('2019-01-28')
-    ->setShipTo($relation) 
+    ->setShipTo($relation)
+    ->setShippingCost(new Price('4.95'))
     ->setInvoiceTo($relation)
     ->setPaymentMethod('iDeal');
+    // Set some more properties, see example doc.
 
 $order->addLine(Line::fromArticle(Article::get(15)));
 $order->addLine(Line::fromBarcode(new Barcode('2637485960')));
