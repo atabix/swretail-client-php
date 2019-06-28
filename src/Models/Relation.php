@@ -272,7 +272,9 @@ class Relation extends Model
             }
         }
 
-        $this->parseOrders($data->orders);
+        if(isset($data->orders)) {
+            $this->parseOrders($data->orders);
+        }
     }
 
     protected function parseOrders($rawOrders)
