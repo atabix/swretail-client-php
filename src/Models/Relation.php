@@ -153,7 +153,7 @@ class Relation extends Model
     }
 
     /**
-     * Find relations with this email address.
+     * Find relations that have been modified within the specified minutes.
      *
      * @param int $minutes
      *
