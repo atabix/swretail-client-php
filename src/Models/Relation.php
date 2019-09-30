@@ -153,7 +153,7 @@ class Relation extends Model
     }
 
     /**
-     * Find relations with this email address.
+     * Find relations that have been modified within the specified minutes.
      *
      * @param int $minutes
      *
@@ -272,7 +272,9 @@ class Relation extends Model
             }
         }
 
-        $this->parseOrders($data->orders);
+        if(isset($data->orders)) {
+            $this->parseOrders($data->orders);
+        }
     }
 
     protected function parseOrders($rawOrders)
