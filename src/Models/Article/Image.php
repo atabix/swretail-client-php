@@ -11,20 +11,19 @@ class Image extends Model
     protected $file;
     protected $order;
     protected $link;
+    protected $checksum;
 
     /**
      * Set values from API response data.
      *
      * @param object|array $values [description]
-     *
-     * @return self
      */
     public function setMappedValues($values): self
     {
         foreach ($values as $apiKey => $value) {
             $property = \substr($apiKey, 6); // 'image_'
             if (! \property_exists($this, $property)) {
-                throw new \InvalidArgumentException('Invalid map key');
+                continue;
             }
 
             if ($property == 'order') {
